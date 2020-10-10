@@ -3,6 +3,9 @@ import React, { useState } from "react";
 const NewContactForm = ({ handleSubmit, persons, handleEdit }) => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
+  const formStyle = {
+    marginBottom: "1rem",
+  };
 
   const editNewName = ({ target }) => {
     setNewName(target.value);
@@ -44,7 +47,7 @@ const NewContactForm = ({ handleSubmit, persons, handleEdit }) => {
   };
 
   return (
-    <form onSubmit={validateAndSubmit}>
+    <form onSubmit={validateAndSubmit} style={formStyle}>
       <div>
         name: <input type="text" value={newName} onChange={editNewName} />
       </div>
