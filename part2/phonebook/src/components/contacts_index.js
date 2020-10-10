@@ -1,10 +1,14 @@
 import React from "react";
 import ContactsIndexItem from "./contacts_index_item";
 
-const ContactsIndex = ({ persons }) => (
+const ContactsIndex = ({ persons, deleteContact }) => (
   <ul>
     {persons.map(person => (
-      <ContactsIndexItem person={person} key={person.name} />
+      <ContactsIndexItem
+        person={person}
+        key={person.id}
+        deleteContact={deleteContact}
+      />
     ))}
   </ul>
 );

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const NewContactForm = ({ handleSubmit, persons }) => {
+const NewContactForm = ({ handleSubmit, persons, handleEdit }) => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
 
@@ -15,7 +15,21 @@ const NewContactForm = ({ handleSubmit, persons }) => {
   const validateAndSubmit = event => {
     event.preventDefault();
     if (persons.map(person => person.name).includes(newName)) {
-      alert(`${newName} is already in this phonebook!`);
+      // alert(`${newName} is already in this phonebook!`);
+      if (
+        window.confirm(
+          `${newName} is already in this phonebook. Replace the number with this one?`
+        )
+      ) {
+        const existingPerson = persons.find(p => p.name === newName);
+        const editedPersonObj = {
+          ...existingPerson,
+          number: newNumber,
+        };
+        handleEdit(editedPersonObj);
+        setNewName("");
+        setNewNumber("");
+      }
     } else if (newNumber === "") {
       alert("Phone number can't be blank!");
     } else {
@@ -36,7 +50,7 @@ const NewContactForm = ({ handleSubmit, persons }) => {
       </div>
       <div>
         phone number:{" "}
-        <input type="number" value={newNumber} onChange={editNewNumber} />
+        <input type="text" value={newNumber} onChange={editNewNumber} />
       </div>
       <div>
         <button type="submit">add</button>
