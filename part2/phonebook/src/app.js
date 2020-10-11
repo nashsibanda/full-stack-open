@@ -95,8 +95,6 @@ const App = () => {
       )
     : persons;
 
-  console.log(notifications.length);
-
   return (
     <div>
       <h1>Phonebook</h1>
