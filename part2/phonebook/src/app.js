@@ -18,12 +18,16 @@ const App = () => {
 
   const addName = newPersonObj => {
     personsService.create(newPersonObj).then(newPerson => {
-      setPersons(persons.concat(newPerson));
-      const addSuccessNotif = {
-        message: `${newPerson.name} has been successfully added!`,
-        type: "success",
-      };
-      addNotification(addSuccessNotif);
+      if (newPerson.error) {
+        addNotification({ message: newPerson.error, type: "error" });
+      } else {
+        setPersons(persons.concat(newPerson));
+        const addSuccessNotif = {
+          message: `${newPerson.name} has been successfully added!`,
+          type: "success",
+        };
+        addNotification(addSuccessNotif);
+      }
     });
   };
 
@@ -31,16 +35,18 @@ const App = () => {
     personsService
       .update(existingPersonObj.id, existingPersonObj)
       .then(editedPerson => {
-        setPersons(
-          persons.map(p =>
-            p.id === existingPersonObj.id ? existingPersonObj : p
-          )
-        );
-        const updateSuccessNotif = {
-          message: `${existingPersonObj.name} has been successfully updated!`,
-          type: "success",
-        };
-        addNotification(updateSuccessNotif);
+        if (editedPerson.error) {
+          addNotification({ message: editedPerson.error, type: "error" });
+        } else {
+          setPersons(
+            persons.map(p => (p.id === existingPersonObj.id ? editedPerson : p))
+          );
+          const updateSuccessNotif = {
+            message: `${existingPersonObj.name} has been successfully updated!`,
+            type: "success",
+          };
+          addNotification(updateSuccessNotif);
+        }
       })
       .catch(error => {
         const alreadyDeletedNotif = {

@@ -18,7 +18,6 @@ const NewContactForm = ({ handleSubmit, persons, handleEdit }) => {
   const validateAndSubmit = event => {
     event.preventDefault();
     if (persons.map(person => person.name).includes(newName)) {
-      // alert(`${newName} is already in this phonebook!`);
       if (
         window.confirm(
           `${newName} is already in this phonebook. Replace the number with this one?`
