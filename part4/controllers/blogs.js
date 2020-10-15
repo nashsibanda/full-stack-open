@@ -7,7 +7,16 @@ blogsRouter.get("/", async (req, res) => {
   res.json(blogs);
 });
 
-blogsRouter.post("/", (req, res, next) => {
+blogsRouter.get("/:id", async (req, res) => {
+  const blog = await Blog.findById(req.params.id);
+  if (blog) {
+    res.json(blog);
+  } else {
+    res.status(404).end();
+  }
+});
+
+blogsRouter.post("/", async (req, res) => {
   const body = req.body;
 
   const blog = new Blog({
@@ -19,12 +28,28 @@ blogsRouter.post("/", (req, res, next) => {
 
   logger.info(blog);
 
-  blog
-    .save()
-    .then(result => {
-      res.status(201).json(result);
-    })
-    .catch(error => next(error));
+  const result = await blog.save();
+  res.status(201).json(result);
+});
+
+blogsRouter.delete("/:id", async (req, res) => {
+  const blogToDelete = await Blog.findById(req.params.id);
+  if (blogToDelete) {
+    await Blog.deleteOne({ _id: blogToDelete._id });
+    res.json(blogToDelete);
+  } else {
+    res.status(404).end();
+  }
+});
+
+blogsRouter.put("/:id", async (req, res) => {
+  const updateDocument = req.body;
+  const updatedBlog = await Blog.findByIdAndUpdate(
+    req.params.id,
+    updateDocument,
+    { new: true, runValidators: true }
+  );
+  res.json(updatedBlog);
 });
 
 module.exports = blogsRouter;

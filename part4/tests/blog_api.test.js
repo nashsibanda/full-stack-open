@@ -16,19 +16,62 @@ beforeEach(async () => {
 
 afterAll(() => mongoose.connection.close());
 
-test("there are four blogs", async () => {
-  const response = await api.get("/api/blogs");
+describe("retrieving blogs", () => {
+  test("should return notes as json", async () => {
+    await api
+      .get("/api/blogs")
+      .expect(200)
+      .expect("Content-Type", /application\/json/);
+  });
 
-  expect(response.body).toHaveLength(testHelper.initialBlogs.length);
+  test("should return all blogs", async () => {
+    const response = await api.get("/api/blogs");
+
+    expect(response.body).toHaveLength(testHelper.initialBlogs.length);
+  });
+
+  test("should have the unique identifier of the blogs be called 'id'", async () => {
+    const response = await api.get("/api/blogs");
+
+    expect(response.body[0].id).toBeDefined();
+  });
+  test("should include the correct titles for all blogs", async () => {
+    const response = await api.get("/api/blogs");
+
+    const titles = response.body.map(b => b.title).sort();
+    const titlesToTest = testHelper.initialBlogs.map(b => b.title).sort();
+
+    expect(titles).toEqual(titlesToTest);
+  });
 });
 
-test("the unique identifier of the blogs is called 'id'", async () => {
-  const response = await api.get("/api/blogs");
+describe("retrieving a single blog", () => {
+  test("should succeed with a valid id", async () => {
+    const blogToGet = await testHelper.oneBlogInDb();
+    await api
+      .get(`/api/blogs/${blogToGet.id}`)
+      .expect(200)
+      .expect("Content-Type", /application\/json/);
+  });
 
-  expect(response.body[0].id).toBeDefined();
+  test("should return the correct blog", async () => {
+    const blogToGet = await testHelper.oneBlogInDb();
+    const response = await api.get(`/api/blogs/${blogToGet.id}`);
+
+    expect(response.body).toEqual(blogToGet);
+  });
+
+  test("should fail with an id that does not exist", async () => {
+    const badId = await testHelper.nonExistentId();
+    await api.get(`/api/blogs/${badId}`).expect(404);
+  });
+
+  test("should fail with an invalid id", async () => {
+    await api.get("/api/blogs/000").expect(400);
+  });
 });
 
-describe("POST-ing a new blog", () => {
+describe("adding a new blog", () => {
   test("should increase the number of total blogs by one", async () => {
     const response = await api.get("/api/blogs");
     expect(response.body).toHaveLength(testHelper.initialBlogs.length);
@@ -58,5 +101,52 @@ describe("POST-ing a new blog", () => {
   test("should respond with 400 if title or url is missing", async () => {
     await api.post("/api/blogs").send(testHelper.newBlogNoTitle).expect(400);
     await api.post("/api/blogs").send(testHelper.newBlogNoUrl).expect(400);
+  });
+});
+
+describe("deleting a blog", () => {
+  test("should succeed if id is valid", async () => {
+    const blogToDelete = await testHelper.oneBlogInDb();
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(200);
+  });
+
+  test("should return the deleted blog", async () => {
+    const blogToDelete = await testHelper.oneBlogInDb();
+    const response = await api.delete(`/api/blogs/${blogToDelete.id}`);
+
+    expect(response.body).toEqual(blogToDelete);
+  });
+
+  test("should fail if id does not exist", async () => {
+    const badId = await testHelper.nonExistentId();
+    await api.delete(`/api/blogs/${badId}`).expect(404);
+  });
+});
+
+describe("updating a blog", () => {
+  test("should succeed with a valid update", async () => {
+    const blogToUpdate = await testHelper.oneBlogInDb();
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(testHelper.blogUpdate)
+      .expect(200);
+  });
+
+  test("should return the updated blog", async () => {
+    const blogToUpdate = await testHelper.oneBlogInDb();
+    const result = await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(testHelper.blogUpdate);
+    const updatedBlogInDb = await testHelper.oneBlogInDb();
+
+    expect(result.body).toEqual(updatedBlogInDb);
+  });
+
+  test("should fail with an invalid update document", async () => {
+    const blogToUpdate = await testHelper.oneBlogInDb();
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(testHelper.badBlogUpdate)
+      .expect(400);
   });
 });

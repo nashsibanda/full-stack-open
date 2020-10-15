@@ -28,7 +28,7 @@ const initialBlogs = [
   },
 ];
 
-const nonExistantId = async () => {
+const nonExistentId = async () => {
   const blog = new Blog({
     title: "notarealblog",
     author: "no-one",
@@ -43,6 +43,11 @@ const nonExistantId = async () => {
 const blogsInDb = async () => {
   const blogs = await Blog.find();
   return blogs.map(blog => blog.toJSON());
+};
+
+const oneBlogInDb = async () => {
+  const blog = await Blog.findOne({ title: "NashBlog" });
+  return blog.toJSON();
 };
 
 const newBlog = {
@@ -61,11 +66,22 @@ const newBlogNoTitle = {
   url: "www.anewblog.com",
 };
 
+const blogUpdate = {
+  author: "Elvis",
+};
+
+const badBlogUpdate = {
+  author: "a",
+};
+
 module.exports = {
   initialBlogs,
-  nonExistantId,
+  nonExistentId,
   blogsInDb,
+  oneBlogInDb,
   newBlog,
   newBlogNoTitle,
   newBlogNoUrl,
+  blogUpdate,
+  badBlogUpdate,
 };
