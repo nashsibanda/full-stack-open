@@ -2,10 +2,9 @@ const blogsRouter = require("express").Router();
 const logger = require("../utils/logger");
 const Blog = require("../models/blog");
 
-blogsRouter.get("/", (req, res) => {
-  Blog.find().then(blogs => {
-    res.json(blogs);
-  });
+blogsRouter.get("/", async (req, res) => {
+  const blogs = await Blog.find();
+  res.json(blogs);
 });
 
 blogsRouter.post("/", (req, res, next) => {
@@ -15,7 +14,7 @@ blogsRouter.post("/", (req, res, next) => {
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: Number.parseInt(body.likes),
+    likes: body.likes,
   });
 
   logger.info(blog);

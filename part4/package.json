@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose",
-    "run": "node index.js",
-    "dev": "nodemon index.js",
+    "test": "NODE_ENV=test jest --verbose --runInBand",
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NODE_ENV=development nodemon index.js",
     "lint": "eslint ."
   },
   "author": "Nash Sibanda",
@@ -14,7 +14,8 @@
   "devDependencies": {
     "eslint": "^7.11.0",
     "jest": "^26.5.3",
-    "nodemon": "^2.0.5"
+    "nodemon": "^2.0.5",
+    "supertest": "^5.0.0"
   },
   "dependencies": {
     "cors": "^2.8.5",
