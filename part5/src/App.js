@@ -9,6 +9,10 @@ const App = () => {
     const [password, setPassword] = useState("");
     const [user, setUser] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
+    const [showNewBlogForm, setShowNewBlogForm] = useState(true);
+    const [blogTitle, setBlogTitle] = useState("");
+    const [blogAuthor, setBlogAuthor] = useState("");
+    const [blogUrl, setBlogUrl] = useState("");
 
     useEffect(() => {
         blogService.getAll().then(blogs => setBlogs(blogs));
@@ -19,6 +23,7 @@ const App = () => {
         if (userJSON) {
             const user = JSON.parse(userJSON);
             setUser(user);
+            blogService.setToken(user.token);
         }
     }, []);
 
@@ -31,6 +36,7 @@ const App = () => {
                 password,
             });
             window.localStorage.setItem("loggedInUser", JSON.stringify(user));
+            blogService.setToken(user.token);
             setUser(user);
             setUsername("");
             setPassword("");
@@ -43,6 +49,27 @@ const App = () => {
     const logOut = () => {
         window.localStorage.removeItem("loggedInUser");
         setUser(null);
+    };
+
+    const toggleNewBlogForm = () => {
+        setShowNewBlogForm(!showNewBlogForm);
+    };
+
+    const handleNewBlog = async event => {
+        event.preventDefault();
+
+        try {
+            const newBlog = {
+                title: blogTitle,
+                author: blogAuthor,
+                url: blogUrl,
+            };
+            const response = await blogService.create(newBlog);
+            setBlogs([...blogs, newBlog]);
+        } catch (exception) {
+            setErrorMessage("Invalid data sent!");
+            setTimeout(() => setErrorMessage(null), 5000);
+        }
     };
 
     const loginForm = () => (
@@ -79,9 +106,53 @@ const App = () => {
                 {user.name} logged in. <button onClick={logOut}>Log Out</button>
             </div>
             <br />
+            <div>
+                <button onClick={toggleNewBlogForm}>
+                    {showNewBlogForm ? "Cancel" : "Add New Blog"}
+                </button>
+            </div>
+            {showNewBlogForm && newBlogForm()}
+            <br />
             {blogs.map(blog => (
                 <Blog key={blog.id} blog={blog} />
             ))}
+        </div>
+    );
+
+    const newBlogForm = () => (
+        <div>
+            <h3>Add New Blog</h3>
+            <form onSubmit={handleNewBlog}>
+                <div>
+                    Title:{" "}
+                    <input
+                        type="text"
+                        value={blogTitle}
+                        name="Title"
+                        onChange={({ target }) => setBlogTitle(target.value)}
+                    />
+                </div>
+                <div>
+                    Author:{" "}
+                    <input
+                        type="text"
+                        value={blogAuthor}
+                        name="Author"
+                        onChange={({ target }) => setBlogAuthor(target.value)}
+                    />
+                </div>
+                <div>
+                    Url:{" "}
+                    <input
+                        type="text"
+                        value={blogUrl}
+                        name="Url"
+                        onChange={({ target }) => setBlogUrl(target.value)}
+                    />
+                </div>
+                <br />
+                <button type="submit">Add Blog</button>
+            </form>
         </div>
     );
 
