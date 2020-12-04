@@ -9,6 +9,7 @@ const App = () => {
     const [password, setPassword] = useState("");
     const [user, setUser] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
     const [showNewBlogForm, setShowNewBlogForm] = useState(true);
     const [blogTitle, setBlogTitle] = useState("");
     const [blogAuthor, setBlogAuthor] = useState("");
@@ -71,6 +72,34 @@ const App = () => {
             setTimeout(() => setErrorMessage(null), 5000);
         }
     };
+
+    const notification = () => (
+        <div
+            style={{
+                padding: "0.4em",
+                backgroundColor: "rgb(78%, 92.5%, 78%)",
+                border: "2px solid rgb(29.8%, 63.2%, 29.8%)",
+                borderRadius: "5px",
+                color: "green",
+            }}
+        >
+            {successMessage}
+        </div>
+    );
+
+    const errorMsg = () => (
+        <div
+            style={{
+                padding: "0.4em",
+                backgroundColor: "rgb(92.5%, 78%, 78%)",
+                border: "2px solid rgb(63.2%, 29.8%, 29.8%)",
+                borderRadius: "5px",
+                color: "#840d0d",
+            }}
+        >
+            {errorMessage}
+        </div>
+    );
 
     const loginForm = () => (
         <div>
@@ -156,7 +185,13 @@ const App = () => {
         </div>
     );
 
-    return user ? blogsList() : loginForm();
+    return (
+        <div>
+            {successMessage && notification()}
+            {errorMessage && errorMsg()}
+            {user ? blogsList() : loginForm()}
+        </div>
+    );
 };
 
 export default App;
